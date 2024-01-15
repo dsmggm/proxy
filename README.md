@@ -11,3 +11,7 @@ iip = '127.0.0.1'
 把127.0.01填写添加白名单记录连接，参考携趣官网白名单管理接口  
 例如  
 iip = 'http://op.xiequ.cn/IpWhiteList.aspx?uid=128590&ukey=9G5EA120E067AAD02A45B7059E8E380B&act=add&ip='
+
+
+脚本会自动获取当前运行的公网IP并添加到白名单  
+携趣的注册请自行百度
