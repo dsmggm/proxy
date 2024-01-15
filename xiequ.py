@@ -3,8 +3,8 @@
 #本脚本需要requests依赖
 #本脚本仅适合用于携趣白名单的自动获取
 
-delall = '127.0.0.1'   #填写删除所有IP的连接，参考携趣官网白名单管理接口,例如  delall = 'http://op.xiequ.cn/IpWhiteList.aspx?uid=128590&ukey=945GGGGGE068AAD02A45B7059E8E380B&act=del&ip=all'
-iip = '127.0.0.1'    #填写添加白名单记录连接，参考携趣官网白名单管理接口,例如  iip = 'http://op.xiequ.cn/IpWhiteList.aspx?uid=128590&ukey=9G5EA120E067AAD02A45B7059E8E380B&act=add&ip='
+delall = 'http://op.xiequ.cn/IpW'   #填写删除所有IP的连接，参考携趣官网白名单管理接口,例如  delall = 'http://op.xiequ.cn/IpWhiteList.aspx?uid=128590&ukey=945GGGGGE068AAD02A45B7059E8E380B&act=del&ip=all'
+iip = 'http://op.xiequ.cn/IpWhiteLi'    #填写添加白名单记录连接，参考携趣官网白名单管理接口,例如  iip = 'http://op.xiequ.cn/IpWhiteList.aspx?uid=128590&ukey=9G5EA120E067AAD02A45B7059E8E380B&act=add&ip='
 
 import requests
 
@@ -25,7 +25,7 @@ else:
     print("无法获取当前公网IP地址")
 
 # 打开删除所有IP网址
-response = requests.get("{delall}")
+response = requests.get(delall)
 
 # 拼接带有IP参数的网址
 url_with_ip = f"{iip}{ip}"
