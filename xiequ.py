@@ -1,3 +1,8 @@
+"""
+cron: */30 * * * *
+new Env('携趣自动添加白名单');
+"""
+
 #!/usr/bin/env python3
 
 #本脚本需要requests依赖
