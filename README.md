@@ -18,4 +18,4 @@ iip = 'http://op.xiequ.cn/IpWhiteList.aspx?uid=128590&ukey=9G5EA120E067AAD02A45B
 
 
 # 其它  
-自己看
+自己看脚本
