@@ -15,3 +15,7 @@ iip = 'http://op.xiequ.cn/IpWhiteList.aspx?uid=128590&ukey=9G5EA120E067AAD02A45B
 
 脚本会自动获取当前运行的公网IP并添加到白名单  
 携趣的注册请自行百度
+
+
+# 其它  
+自己看
