@@ -1,8 +1,10 @@
+# -*- coding: utf-8 -*-
 '''
 脚本用于携趣的自动添加公网ip白名单
 添加变量名=xiequ_uid_ukey    变量值=备注#uid#ukey
 多账户换行
 需要安装依赖asyncio、requests
+new Env('携趣白名单');
 '''
 
 
