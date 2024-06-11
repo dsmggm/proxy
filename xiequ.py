@@ -4,6 +4,7 @@
 添加变量名=xiequ_uid_ukey    变量值=备注#uid#ukey
 多账户换行
 需要安装依赖asyncio、requests
+cron: */30 * * * *
 new Env('携趣白名单');
 '''
 
