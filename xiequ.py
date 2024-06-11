@@ -1,39 +1,72 @@
-"""
-cron: */30 * * * *
-new Env('携趣自动添加白名单');
-"""
+'''
+脚本用于携趣的自动添加公网ip白名单
+添加变量名=xiequ_uid_ukey    变量值=备注#uid#ukey
+多账户换行
+需要安装依赖asyncio、requests
+'''
 
-#!/usr/bin/env python3
-
-#本脚本需要requests依赖
-#本脚本仅适合用于携趣白名单的自动获取
-
-delall = 'http://op.xiequ.cn/IpW'   #填写删除所有IP的连接，参考携趣官网白名单管理接口,例如  delall = 'http://op.xiequ.cn/IpWhiteList.aspx?uid=128590&ukey=945GGGGGE068AAD02A45B7059E8E380B&act=del&ip=all'
-iip = 'http://op.xiequ.cn/IpWhiteLi'    #填写添加白名单记录连接，参考携趣官网白名单管理接口,例如  iip = 'http://op.xiequ.cn/IpWhiteList.aspx?uid=128590&ukey=9G5EA120E067AAD02A45B7059E8E380B&act=add&ip='
 
 import requests
+import os
+import asyncio
 
-def get_public_ip():
-    url = 'https://api.ipify.org?format=json'
-    response = requests.get(url)
+
+async def get_public_ip():
+    print('开始获取当前公网')
+    response = requests.get('http://ip-api.com/json')
     if response.status_code == 200:
         data = response.json()
-        ip = data['ip']
-        return ip
+        if data['status'] == 'success':
+            return data['query']
+    return None
+
+
+
+async def env_init(ip):     # 获取环境变量
+    uid_ukey_envs = os.environ.get("xiequ_uid_ukey")
+    if uid_ukey_envs:
+        uid_ukeys = uid_ukey_envs.splitlines()
+        for uid_ukey in uid_ukeys:
+            username, uid, ukey = uid_ukey.split("#")
+            await del_all_ip(ip, username, uid, ukey)   # 删除所有ip
+            await add_ip(ip, username, uid, ukey)   # 添加白名单
     else:
-        return None
+        print("没有找到xiequ_uid_ukey变量")
 
-ip = get_public_ip()
-if ip:
-    print("当前公网IP地址是:", ip)
-else:
-    print("无法获取当前公网IP地址")
 
-# 打开删除所有IP网址
-response = requests.get(delall)
 
-# 拼接带有IP参数的网址
-url_with_ip = f"{iip}{ip}"
+async def del_all_ip(ip, username, uid, ukey):  # 删除所有IP网址
 
-# 打开带有IP参数的网址
-response_with_ip = requests.get(url_with_ip)
+    response = requests.get(f"http://op.xiequ.cn/IpWhiteList.aspx?uid={uid}&ukey={ukey}&act=del&ip=all")
+    if response.status_code == 200:
+        print(f"清空 {username} 账号白名单成功")
+    else:
+        print(f"清空 {username} 账号白名单失败，手动请求试试……")
+
+
+async def add_ip(ip, username, uid, ukey): 
+
+    # 拼接带有IP参数的网址
+    url_with_ip = f"http://op.xiequ.cn/IpWhiteList.aspx?uid={uid}&ukey={ukey}&act=add&ip={ip}"
+
+    # 打开带有IP参数的网址
+    response_with_ip = requests.get(url_with_ip)
+    if response_with_ip.status_code == 200:
+        print(f"账号 {username} 白名单添加成功")
+    else:
+        print(f"账号 {username} 白名单添加失败，手动请求试试……")
+
+
+
+async def main():
+    ip = await get_public_ip()
+    if ip:
+        print("当前公网IP地址是:", ip)
+    else:
+        print("无法获取当前公网IP地址")
+    await env_init(ip)
+    
+
+
+
+asyncio.run(main())
