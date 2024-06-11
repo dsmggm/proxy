@@ -39,9 +39,9 @@ async def del_all_ip(ip, username, uid, ukey):  # 删除所有IP网址
 
     response = requests.get(f"http://op.xiequ.cn/IpWhiteList.aspx?uid={uid}&ukey={ukey}&act=del&ip=all")
     if response.status_code == 200:
-        print(f"清空 {username} 账号白名单成功")
+        print(f"{username} 清空白名单成功")
     else:
-        print(f"清空 {username} 账号白名单失败，手动请求试试……")
+        print(f"{username} 清空白名单失败，手动请求试试……")
 
 
 async def add_ip(ip, username, uid, ukey): 
@@ -52,9 +52,9 @@ async def add_ip(ip, username, uid, ukey):
     # 打开带有IP参数的网址
     response_with_ip = requests.get(url_with_ip)
     if response_with_ip.status_code == 200:
-        print(f"账号 {username} 白名单添加成功")
+        print(f"{username} 白名单添加成功")
     else:
-        print(f"账号 {username} 白名单添加失败，手动请求试试……")
+        print(f"{username} 白名单添加失败，手动请求试试……")
 
 
 
