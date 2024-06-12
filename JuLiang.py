@@ -1,94 +1,62 @@
-"""
-星空代理 V1.01
-注册地址：http://www.xkdaili.com/?ic=7d6acs0s
-签到送IP
+# -*- coding: utf-8 -*-
+'''
+脚本用于巨量的自动添加公网ip白名单
+添加变量名=JuLiang_Whitelist   变量值=备注#trade_no业务号#api密钥
+多账户换行
+需要安装依赖asyncio、requests
+cron: */30 * * * *
+new Env('巨量白名单');
+'''
 
-Author：Unknown
-Updated: By Huansheng
-const $ = new Env("星空代理签到");
-cron: 10 00 * * *
-"""
-# 变量 export xingkong="账户1:密码&账户2:密码"
-import os
-import re
-
-try:
-    from SendNotify import send
-except Exception as e:
-    print("未找到推送文件 SendNotify.py，提现成功也不会通知！")
 
 import requests
+import os
+import asyncio
+import hashlib
 
-try:
-    xingkong = os.environ["xingkong"]
-    headers = {
-        "Accept": "application/json, text/javascript, */*; q=0.01",
-        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-        "Connection": "keep-alive",
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        # Requests sorts cookies= alphabetically
-        # 'Cookie': 'ASP.NET_SessionId=23dfn2mafqhzkuuzosirclt1; Hm_lvt_d76458121a7604d3e55d998f66ef0be6=1659492634; dt_cookie_user_name_remember=DTcms=18729469208; Hm_lpvt_d76458121a7604d3e55d998f66ef0be6=1659493214',
-        "DNT": "1",
-        "Origin": "http://www.xkdaili.com",
-        "Referer": "http://www.xkdaili.com/main/usercenter.aspx",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.134 Safari/537.36 Edg/103.0.1264.77",
-        "X-Requested-With": "XMLHttpRequest",
-    }
-    # 用于拼接
-    st = ""
-    params = {
-        "action": "user_receive_point",
-    }
-    # 按照空格分隔多个账户
-    accounts = xingkong.split("&")
-    for i in accounts:
-        up = i.split(":")
-        if len(up) == 2:
-            data = {"username": up[0], "password": up[1], "remember": 1, "code": 0}
-        else:
-            print(f"{i} 配置有误，请检查")
-            continue
-        try:
-            aa = requests.post(
-                "http://www.xkdaili.com/tools/submit_ajax.ashx?action=user_login&site_id=1",
-                headers=headers,
-                data=data,
-            )
-            ck = aa.cookies
-            asp = re.findall(r"ASP\.NET_SessionId=(\w+)", str(ck))
-            dt = re.findall(r"dt_cookie_user_name_remember=(\w+=\w+)", str(ck))
-            if len(dt) == 0:
-                print("\n登录失败，请检查账号或密码，手动登录测试 或 不知何原因需要验证码导致无法登录，暂时无解")
-                continue
-            cookies = {
-                "ASP.NET_SessionId": asp[0],
-                # "dt_cookie_user_name_remember": dt[0],
-                "dt_cookie_user_name_remember": "DTcms=" + up[0],
-                "dt_cookie_user_pwd_remember": "DTcms=" + up[1],
-            }
+async def get_public_ip():
+    print('开始获取当前公网')
+    response = requests.get('http://ip-api.com/json')
+    if response.status_code == 200:
+        data = response.json()
+        if data['status'] == 'success':
+            return data['query']
+    return None
 
-            data = {
-                "type": "login",
-            }
+async def env_init(ip):     # 获取环境变量
+    juliang_envs = os.environ.get("JuLiang_Whitelist")
+    if juliang_envs:
+        trade_no_keys = juliang_envs.splitlines()
+        for trade_no_key in trade_no_keys:
+            username, trade_no, key = trade_no_key.split("#")
+            await add_ip(username, ip, trade_no, key)  # 添加白名单
+    else:
+        print("没有找到JuLiang_Whitelist变量")
 
-            response = requests.post(
-                "http://www.xkdaili.com/tools/submit_ajax.ashx",
-                params=params,
-                headers=headers,
-                data=data,
-                verify=False,
-                cookies=cookies,
-            )
-            txt = response.json()
-            print("\n星空签到 ", txt["msg"])
-            st += f"\n账户 {up[0]} 星空签到 {txt['msg']}"
-        except Exception as e:
-            print(f"\n账户 {up[0]} 星空签到异常 {str(e)}")
-            st += f"\n账户 {up[0]} 星空签到异常 {str(e)}"
-    # 执行完毕发送通知
-    if send:
-        send("星空签到通知", st)
-except Exception as e:
-    print("\n星空签到失败,失败原因 ", str(e))
-    if str(e) == "list index out of range":
-        send("\n星空代理签到失败,失败原因 ", f"{str(e)}")
+
+async def calculate_md5(input_string):
+    md5_hash = hashlib.md5()    # 创建一个 md5 哈希对象
+    md5_hash.update(input_string.encode('utf-8'))    # 更新哈希对象与输入字符串编码为字节
+    return md5_hash.hexdigest()    # 计算哈希值并以十六进制格式返回
+
+
+async def add_ip(username, ip, trade_no, key):  # 添加ip
+    sign = await calculate_md5(f"new_ip={ip}&reset=1&trade_no={trade_no}&key={key}")
+    response = requests.get(f"http://v2.api.juliangip.com/dynamic/replaceWhiteIp?new_ip={ip}&reset=1&trade_no={trade_no}&sign={sign}")
+    if response.status_code == 200:
+        print(f"{username} 提交白名单成功")
+    else:
+        print(f"{username} 提交白名单失败，手动请求试试……")
+
+
+
+async def main():
+    ip = await get_public_ip()
+    if ip:
+        print("当前公网IP地址是:", ip)
+    else:
+        print("无法获取当前公网IP地址")
+    await env_init(ip)
+
+
+asyncio.run(main())
