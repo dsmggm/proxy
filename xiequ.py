@@ -14,13 +14,29 @@ import os
 import asyncio
 
 
+# async def get_public_ip():
+#     print('开始获取当前公网')
+#     response = requests.get('http://ip-api.com/json')
+#     if response.status_code == 200:
+#         data = response.json()
+#         if data['status'] == 'success':
+#             return data['query']
+#     return None
+'''
+参考API：
+    url = 'https://whois.pconline.com.cn/ipJson.jsp?ip=&json=true'
+    url = 'https://ip.useragentinfo.com/json'
+    url = 'https://vv.video.qq.com/checktime?otype=ojson'
+    url = 'https://api.uomg.com/api/visitor.info?skey=1'
+'''
 async def get_public_ip():
     print('开始获取当前公网')
-    response = requests.get('http://ip-api.com/json')
+    response = requests.get('https://whois.pconline.com.cn/ipJson.jsp?ip=&json=true')
+    
     if response.status_code == 200:
         data = response.json()
-        if data['status'] == 'success':
-            return data['query']
+        # 直接返回 IP 地址
+        return data.get('ip')  # 提取 'ip' 字段
     return None
 
 
