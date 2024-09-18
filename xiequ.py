@@ -24,10 +24,10 @@ import asyncio
 #     return None
 '''
 参考API：
-    url = 'https://whois.pconline.com.cn/ipJson.jsp?ip=&json=true'
-    url = 'https://ip.useragentinfo.com/json'
-    url = 'https://vv.video.qq.com/checktime?otype=ojson'
-    url = 'https://api.uomg.com/api/visitor.info?skey=1'
+https://whois.pconline.com.cn/ipJson.jsp?ip=&json=true
+https://ip.useragentinfo.com/json
+https://vv.video.qq.com/checktime?otype=ojson
+https://api.uomg.com/api/visitor.info?skey=1
 '''
 async def get_public_ip():
     print('开始获取当前公网')
