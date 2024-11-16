@@ -81,9 +81,10 @@ async def main():
     ip = await get_public_ip()
     if ip:
         print("当前公网IP地址是:", ip)
+        await env_init(ip)
     else:
         print("无法获取当前公网IP地址")
-    await env_init(ip)
+
     
 
 
